@@ -3,19 +3,19 @@
 package outputs
 
 import (
-	"github.com/KablamoOSS/kombustion/kombustion-plugin-kablamo-network/common"
-	"github.com/KablamoOSS/kombustion/types"
+	"github.com/KablamoOSS/kombustion-plugin-kablamo-network/common"
+	kombustionTypes "github.com/KablamoOSS/kombustion/types"
 	yaml "gopkg.in/yaml.v2"
 )
 
-func ParseNetworkVPC(name string, data string) (cf types.ValueMap, err error) {
+func ParseNetworkVPC(ctx map[string]interface{}, name string, data string) (cf kombustionTypes.TemplateObject, err error) {
 	var config common.NetworkVPCConfig
 	if err = yaml.Unmarshal([]byte(data), &config); err != nil {
 		return
 	}
 
 	// create a group of objects (each to be validated)
-	cf = make(types.ValueMap)
+	cf = make(kombustionTypes.TemplateObject)
 
 	return
 }

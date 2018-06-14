@@ -1,11 +1,10 @@
 package main
 
 import (
-	"github.com/KablamoOSS/kombustion-plugin-serverless/resources"
-	"github.com/KablamoOSS/kombustion/kombustion-plugin-kablamo-network/common"
-	"github.com/KablamoOSS/kombustion/plugins/api"
-	"github.com/KablamoOSS/kombustion/plugins/api/types"
-	"github.com/KablamoOSS/kombustion/types"
+	"github.com/KablamoOSS/kombustion-plugin-kablamo-network/common"
+	"github.com/KablamoOSS/kombustion-plugin-kablamo-network/resources"
+	"github.com/KablamoOSS/kombustion/pkg/plugins/api"
+	"github.com/KablamoOSS/kombustion/pkg/plugins/api/types"
 )
 
 var (
@@ -18,7 +17,7 @@ func init() {
 		version = "BUILT_FROM_SOURCE"
 	}
 	if name == "" {
-		name = "kombustion-plugin-serverless"
+		name = "kombustion-plugin-kablamo-network"
 	}
 }
 
@@ -45,7 +44,7 @@ var Mappings = map[string]func(
 	data string,
 ) []byte{}
 
-var Help = types.PluginHelp{
+var Help = types.Help{
 	Description: "Helper function for Kablamo VPC",
 	TypeMappings: []types.TypeMapping{
 		{
