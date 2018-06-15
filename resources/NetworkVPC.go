@@ -11,7 +11,7 @@ import (
 )
 
 //ParseNetworkVPC parser builder.
-func ParseNetworkVPC(ctx map[string]interface{}, name string, data string) (cf kombustionTypes.TemplateObject) {
+func ParseNetworkVPC(name string, data string) (cf kombustionTypes.TemplateObject) {
 	// Parse the config data
 	var config common.NetworkVPCConfig
 	if err := yaml.Unmarshal([]byte(data), &config); err != nil {

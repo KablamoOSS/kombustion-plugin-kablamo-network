@@ -8,7 +8,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func ParseNetworkVPC(ctx map[string]interface{}, name string, data string) (cf kombustionTypes.TemplateObject, err error) {
+func ParseNetworkVPC(name string, data string) (cf kombustionTypes.TemplateObject, err error) {
 	var config common.NetworkVPCConfig
 	if err = yaml.Unmarshal([]byte(data), &config); err != nil {
 		return
