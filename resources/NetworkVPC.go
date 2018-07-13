@@ -1,30 +1,36 @@
-// +build plugin
-
 package resources
 
 import (
 	"strings"
 
-	"github.com/KablamoOSS/kombustion/kombustion-plugin-kablamo-network/common"
-	"github.com/KablamoOSS/kombustion/pluginParsers/properties"
-	"github.com/KablamoOSS/kombustion/pluginParsers/resources"
+	"github.com/KablamoOSS/kombustion-plugin-network/common"
+	"github.com/KablamoOSS/kombustion/pkg/parsers/properties"
+	"github.com/KablamoOSS/kombustion/pkg/parsers/resources"
 	"github.com/KablamoOSS/kombustion/types"
-	yaml "gopkg.in/yaml.v2"
+	yaml "github.com/KablamoOSS/yaml"
 )
 
 //ParseNetworkVPC parser builder.
-func ParseNetworkVPC(name string, data string) (cf types.ValueMap, err error) {
+func ParseNetworkVPC(name string, data string) (cf types.TemplateObject, errs []error) {
 	// Parse the config data
 	var config common.NetworkVPCConfig
-	if err = yaml.Unmarshal([]byte(data), &config); err != nil {
+
+	err := yaml.Unmarshal([]byte(data), &config)
+	if err != nil {
+		errs = append(errs, err)
 		return
 	}
 
 	// validate the config
-	config.Validate()
+	validateErrs := config.Validate()
+
+	if validateErrs != nil {
+		errs = append(errs, validateErrs...)
+		return
+	}
 
 	// create a group of objects (each to be validated)
-	cf = make(types.ValueMap)
+	cf = make(types.TemplateObject)
 
 	cf[config.Properties.Details.VPCName] = resources.NewEC2VPC(
 		resources.EC2VPCProperties{
@@ -110,7 +116,7 @@ func ParseNetworkVPC(name string, data string) (cf types.ValueMap, err error) {
 		)
 
 		for aclentry, acl := range settings.(map[interface{}]interface{}) {
-			ports := properties.NetworkAclEntry_PortRange{
+			ports := properties.NetworkAclEntryPortRange{
 				From: strings.Split(acl.(string), ",")[5],
 				To:   strings.Split(acl.(string), ",")[6],
 			}

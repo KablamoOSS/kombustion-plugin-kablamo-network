@@ -1,7 +1,7 @@
 package common
 
 import (
-	"log"
+	"fmt"
 	"strings"
 )
 
@@ -85,8 +85,9 @@ func GenTags(Tags map[string]string) []Tag {
 }
 
 // Validate - input Config validation
-func (this NetworkVPCConfig) Validate() {
+func (this NetworkVPCConfig) Validate() (errors []error) {
 	if this.Properties.CIDR == nil {
-		log.Println("WARNING: KablamoNetworkConfig - Missing required field 'CIDR'")
+		errors = append(errors, fmt.Errorf("Missing required field 'CIDR'"))
 	}
+	return
 }

@@ -1,11 +1,10 @@
 package main
 
 import (
-	"github.com/KablamoOSS/kombustion-plugin-serverless/resources"
-	"github.com/KablamoOSS/kombustion/kombustion-plugin-kablamo-network/common"
-	"github.com/KablamoOSS/kombustion/plugins/api"
-	"github.com/KablamoOSS/kombustion/plugins/api/types"
-	"github.com/KablamoOSS/kombustion/types"
+	"github.com/KablamoOSS/kombustion-plugin-network/common"
+	"github.com/KablamoOSS/kombustion-plugin-network/resources"
+	"github.com/KablamoOSS/kombustion/pkg/plugins/api"
+	"github.com/KablamoOSS/kombustion/pkg/plugins/api/types"
 )
 
 var (
@@ -18,38 +17,36 @@ func init() {
 		version = "BUILT_FROM_SOURCE"
 	}
 	if name == "" {
-		name = "kombustion-plugin-serverless"
+		name = "kombustion-plugin-network"
 	}
 }
 
 // Resources for this plugin
 var Resources = map[string]func(
-	ctx map[string]interface{},
 	name string,
 	data string,
 ) []byte{
-	"Kablamo::Network::VPC": api.RegisterResource(resources.ParseNetworkVPC),
+	"Network::VPC": api.RegisterResource(resources.ParseNetworkVPC),
 }
 
 // Outputs for this plugin
 var Outputs = map[string]func(
-	ctx map[string]interface{},
 	name string,
 	data string,
 ) []byte{}
 
 // Mappings for this plugin
 var Mappings = map[string]func(
-	ctx map[string]interface{},
 	name string,
 	data string,
 ) []byte{}
 
-var Help = types.PluginHelp{
+// Help -
+var Help = types.Help{
 	Description: "Helper function for Kablamo VPC",
 	TypeMappings: []types.TypeMapping{
 		{
-			Name:        "Kablamo::Network::VPC",
+			Name:        "Network::VPC",
 			Description: "Creates a complete VPC network with subnets, route tables, routes & NACL's",
 			Config:      common.NetworkVPCConfig{},
 		},
@@ -59,10 +56,9 @@ var Help = types.PluginHelp{
 // Register plugin
 func Register() []byte {
 	return api.RegisterPlugin(types.Config{
-		Name:               name,
-		Version:            version,
-		Prefix:             "Kablamo",
-		RequiresAWSSession: false,
+		Name:    name,
+		Version: version,
+		Prefix:  "Kablamo",
 		Help: types.Help{
 			Description: "A VPC & Network Plugin",
 			TypeMappings: []types.TypeMapping{

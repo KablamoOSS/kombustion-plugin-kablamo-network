@@ -23,7 +23,7 @@
 
 [[constraint]]
   name = "github.com/KablamoOSS/kombustion"
-  branch = "ok/rfc-0001"
+  version = "v0.2.4"
 
 [[constraint]]
   name = "github.com/KablamoOSS/yaml"

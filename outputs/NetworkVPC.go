@@ -1,21 +1,23 @@
-// +build plugin
-
 package outputs
 
 import (
-	"github.com/KablamoOSS/kombustion/kombustion-plugin-kablamo-network/common"
+	"github.com/KablamoOSS/kombustion-plugin-network/common"
 	"github.com/KablamoOSS/kombustion/types"
-	yaml "gopkg.in/yaml.v2"
+	yaml "github.com/KablamoOSS/yaml"
 )
 
-func ParseNetworkVPC(name string, data string) (cf types.ValueMap, err error) {
+// ParseNetworkVPC -
+func ParseNetworkVPC(name string, data string) (cf types.TemplateObject, errs []error) {
 	var config common.NetworkVPCConfig
-	if err = yaml.Unmarshal([]byte(data), &config); err != nil {
+
+	err := yaml.Unmarshal([]byte(data), &config)
+	if err != nil {
+		errs = append(errs, err)
 		return
 	}
 
 	// create a group of objects (each to be validated)
-	cf = make(types.ValueMap)
+	cf = make(types.TemplateObject)
 
 	return
 }
