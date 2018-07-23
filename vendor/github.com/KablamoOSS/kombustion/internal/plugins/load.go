@@ -70,6 +70,15 @@ func loadPlugin(
 
 	// TODO: Make the help messages for users much friendlier
 	if !pluginExists(pluginPath) {
+		if isDevPlugin {
+			printer.Fatal(
+				fmt.Errorf("Plugin `%s` could not be found", pluginPath),
+				fmt.Sprintf(
+					"Check the path you provided with --load-plugin is correct.",
+				),
+				"https://www.kombustion.io/api/cli/#load-plugin",
+			)
+		}
 		printer.Fatal(
 			fmt.Errorf("Plugin `%s` is not installed, but is included in kombustion.lock", manifestPlugin.Name),
 			fmt.Sprintf(
@@ -123,32 +132,10 @@ func loadPlugin(
 		loadedPlugin.InternalConfig.Prefix = manifestPlugin.Alias
 	}
 
-	// [ Resources ]----------------------------------------------------------------------------------
-
-	resourcesConstructor, _ := p.Lookup("Resources")
-	if resourcesConstructor != nil {
-		loadedPlugin.Resources = resourcesConstructor.(*map[string]func(
-			name string,
-			data string,
-		) []byte)
-	}
-
-	// [ Mapping ]------------------------------------------------------------------------------------
-
-	mappingsConstructor, _ := p.Lookup("Mappings")
-	if mappingsConstructor != nil {
-
-		loadedPlugin.Mappings = mappingsConstructor.(*map[string]func(
-			name string,
-			data string,
-		) []byte)
-	}
-
-	// [ Outputs ]------------------------------------------------------------------------------------
-
-	outputsConstructor, _ := p.Lookup("Outputs")
-	if outputsConstructor != nil {
-		loadedPlugin.Outputs = outputsConstructor.(*map[string]func(
+	// Load Parsers
+	parserConstructor, _ := p.Lookup("Parsers")
+	if parserConstructor != nil {
+		loadedPlugin.Parsers = parserConstructor.(*map[string]func(
 			name string,
 			data string,
 		) []byte)

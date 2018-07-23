@@ -17,8 +17,8 @@ Before you start writing a plugin will need a working Go development environment
 In addition you need a version of `kombustion` built from source.
 
 ```bash
-# Get the latest kmobustion
-$ go get https://github.com/KablamoOSS/kombustion
+# Get the latest kombustion
+$ go get github.com/KablamoOSS/kombustion
 
 # Compile and install it
 $ go install github.com/KablamoOSS/kombustion
@@ -28,7 +28,7 @@ $ kombustion -v
 > kombustion version BUILT_FROM_SOURCE
 ```
 
-When `kombustion` is built from source a flag is made available that allows loading any arbirary plugin for the specific purpose of developing plugins. This flag does not exit for official releases of `kombustion`, preventing arbritrary plugins from being loaded.
+When `kombustion` is built from source a flag is made available that allows loading any arbirary plugin for the specific purpose of developing plugins. This flag does not exist for official releases of `kombustion`, preventing arbritrary plugins from being loaded.
 
 You can load a plugin using `--load-plugin path/to/plugin.so` before your command. For example, we can load a plugin built in a different folder.
 
@@ -40,7 +40,7 @@ $ kombustion --load-plugin ../kombustion-plugin-example/kombustion-plugin-exampl
 The easiest way to get started is to start from a copy of the [boilerplate](https://github.com/KablamoOSS/kombustion-plugin-boilerplate) example plugin. This repository has everything you need to get started writing a plugin, including default configuration, an example folder layout, and a build script.
 
 ```bash
-$ go get https://github.com/KablamoOSS/kombustion-plugin-boilerplate
+$ go get github.com/KablamoOSS/kombustion-plugin-boilerplate
 $ cp $GOPATH/src/github.com/KablamoOSS/kombustion-plugin-boilerplate \
   $GOPATH/src/github.com/{username}/{plugin}
 ```
@@ -114,7 +114,7 @@ func main() {}
 
 Now our plugin is registered, we need to provide functions for our resources, mappings and outputs.
 
-To register these you need to provide an exported variable `Resources`, `Mappings`, `Outputs`. They need to be defined exactly as follows, with your acutal Parser function wrapped in `api.RegisterResource`, `api.RegisterMapping` or `api.RegisterOutput`.
+To register these you need to provide an exported variable `Resources`, `Mappings`, `Outputs`. They need to be defined exactly as follows, with your actual Parser function wrapped in `api.RegisterResource`, `api.RegisterMapping` or `api.RegisterOutput`.
 
 ```go
 // Resources for this plugin
@@ -144,7 +144,7 @@ var Outputs = map[string]func(
 
 > A Parser function takes in YAML as a string, and returns one or more of its type (either `Resource`, `Mapping` or `Output`).
 
-We generally store then in a seperate folder for each.
+We generally store them in a separate folder for each.
 
 So to use a `Resource` function, as we did above, we need to import our `resources` package in `plugin.go`.
 
@@ -161,14 +161,14 @@ import (
 
 The process for a Parser function is the same for `Resource`, `Mapping` and `Output`. So in this example we'll cover `Resource`.
 
-In a new file at `resources/lambdaFunction.go` we start by importing the from `kombustion` core the CloudFormation parser functions, some core types, and a YAML library.
+In a new file at `resources/lambdaFunction.go` we start by importing them from `kombustion` core the CloudFormation parser functions, some core types, and a YAML library.
 
 ```go
 package resources
 
 import (
   cfResources "github.com/KablamoOSS/kombustion/pkg/parsers/resources"
-  "github.com/KablamoOSS/kombustion/types"
+  kombustionTypes "github.com/KablamoOSS/kombustion/types"
   yaml "github.com/KablamoOSS/yaml"
 )
 
@@ -233,24 +233,32 @@ func ParseLambdaFunction(
   data string,
 ) (
   cf types.TemplateObject,
-  err error,
+  errs []error,
 ) {
   // Setup a variable to load the yaml into
   var config LambdaFunctionConfig
 
   // Attempt to unmarshall the yaml
-  if err = yaml.Unmarshal([]byte(data), &config); err != nil {
-    // return an error if there was one
-    return cf, err
-  }
+  err := yaml.Unmarshal([]byte(data), &config)
+
+	if err != nil {
+    // Append the error to the errs array
+		errs = append(errs, err)
+		return
+	}
+
 
   // validate the config to ensure we have required fields
   // and apply any other validation logic
   // We'll cover this shortly.
   err = config.Validate()
-  if err != nil {
-    return cf, err
-  }
+
+	if err != nil {
+    // Append the error to the errs array
+		errs = append(errs, err)
+		return
+	}
+
 
   // Now we can create resources
   // To do this we need to call a create function from
@@ -275,11 +283,29 @@ func ParseLambdaFunction(
     )
   }
 
-  return cf, err
+  return cf, errs
 }
 
 ```
 
+#### Returning Errors
+
+You must return all errors in the `errs []error` array. These are then printed to the user, with
+information about the plugin, and the block in the template that caused it.
+
+**Don't** print errors to `stdout`, as the user won't know where they're coming from.
+
+If `errs []error` contains any errors, the task will fail.
+
+And example of how an error is printed:
+
+```sh
+✖  Error: Missing field 'CIDR'
+☞  Resolution:
+   ├─ Name:    MyNetwork
+   ├─ Plugin:  kombustion-plugin-boilerplate
+   └─ Type:    Kablamo::Example::VPC
+```
 
 ### Validation
 
@@ -288,19 +314,21 @@ In this example our validation function is only ensuring requried fields are pro
 ```go
 
 // Validate is attached to LambdaFunctionConfig
-func (config LambdaFunctionConfig) Validate() error {
+func (config LambdaFunctionConfig) Validate() (errors []error) {
   if config.Properties.Code == nil {
-    return fmt.Errorf("Missing required field 'Code'")
+    errors = append(errors, fmt.Errorf("Missing required field 'Code'"))
   }
   if config.Properties.Handler == nil {
-    return fmt.Errorf("Missing required field 'Handler'")
+    errors = append(errors, fmt.Errorf("Missing required field 'Handler'"))
   }
   if config.Properties.Role == nil {
-    return fmt.Errorf("Missing required field 'Role'")
+    errors = append(errors, fmt.Errorf("Missing required field 'Role'"))
   }
   if config.Properties.Runtime == nil {
-    return fmt.Errorf("Missing required field 'Runtime'")
+    errors = append(errors, fmt.Errorf("Missing required field 'Runtime'"))
   }
+
+  return
 }
 ```
 
