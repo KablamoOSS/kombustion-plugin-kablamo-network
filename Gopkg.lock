@@ -11,7 +11,7 @@
     "types"
   ]
   revision = "0ebddf558ca50461c69aa81e89eab988786d94a2"
-  version = "v0.3.0"
+  version = "v0.3.2"
 
 [[projects]]
   name = "github.com/KablamoOSS/yaml"

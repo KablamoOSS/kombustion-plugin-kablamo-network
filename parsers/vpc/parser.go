@@ -204,14 +204,5 @@ func ParseNetworkVPC(name string,
 		)
 	}
 
-	/* 	for k, resource := range cf {
-	   		if errors := resource.Validate(); len(errors) > 0 {
-	   			for _, err = range errors {
-	   				log.Println("WARNING: KablamoNetworkConfig - ", err)
-	   			}
-	   			return
-	   		}
-	   	}
-		   return */
 	return
 }
