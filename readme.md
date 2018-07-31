@@ -11,7 +11,7 @@
 $ kombustion add github.com/KablamoOSS/kombustion-plugin-network
 ```
  
-# Exmaples:
+# Examples:
     Private VPC
 ```sh
 # To use this example make sure you have the following plugins
